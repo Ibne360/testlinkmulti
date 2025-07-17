@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মাল্টি-লিঙ্ক ট্যাব ওপেনার</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #4776E6, #8E54E9);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+        
+        .input-group input:focus {
+            border-color: #4776E6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.2);
+            background: #fff;
+        }
+        
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(90deg, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(142, 84, 233, 0.4);
+        }
+        
+        .btn i {
+            margin-right: 10px;
+        }
+        
+        .result-container {
+            background: #f0f5ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 2px dashed #4776E6;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4776E6;
+        }
+        
+        .copy-btn {
+            background: #8E54E9;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #7a43d9;
+        }
+        
+        .generated-link {
+            word-break: break-all;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 30px;
+            font-size: 1rem;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3 i {
+            margin-right: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .link-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+        }
+        
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .link-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 15px;
+            color: #333;
+        }
+        
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .remove-btn:hover {
+            background: #ff2e43;
+        }
+        
+        .add-link-form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .add-link-form input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px 0 0 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .add-link-form input:focus {
+            border-color: #4776E6;
+            outline: none;
+        }
+        
+        .add-link-form button {
+            background: #4776E6;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .add-link-form button:hover {
+            background: #3a68d1;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(90deg, #4776E6, #8E54E9);
+            color: white;
+        }
+        
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-external-link-alt"></i> মাল্টি-লিঙ্ক ট্যাব ওপেনার</h1>
+            <p class="subtitle">একটি লিঙ্ক শেয়ার করুন, একাধিক ট্যাবে ওপেন হবে</p>
+        </header>
+        
+        <div class="content">
+            <div class="add-link-form">
+                <input type="text" id="linkInput" placeholder="https://example.com">
+                <button id="addLinkBtn"><i class="fas fa-plus"></i> যোগ করুন</button>
+            </div>
+            
+            <div class="link-list" id="linkList">
+                <div class="link-item">
+                    <div class="link-text">কোন লিঙ্ক যোগ করা হয়নি</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn clear-btn" id="clearBtn">
+                    <i class="fas fa-trash"></i> সব মুছুন
+                </button>
+                <button class="action-btn generate-btn" id="generateBtn">
+                    <i class="fas fa-bolt"></i> লিঙ্ক তৈরি করুন
+                </button>
+            </div>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="result-header">
+                    <div class="result-title"><i class="fas fa-link"></i> আপনার শেয়ারযোগ্য লিঙ্ক:</div>
+                    <button class="copy-btn" id="copyBtn"><i class="fas fa-copy"></i> কপি করুন</button>
+                </div>
+                <div class="generated-link" id="generatedLink">লিঙ্ক তৈরি করুন বাটনে ক্লিক করুন</div>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> কিভাবে ব্যবহার করবেন?</h3>
+                <ul>
+                    <li>উপরের ফিল্ডে লিঙ্ক লিখুন এবং "যোগ করুন" বাটনে ক্লিক করুন</li>
+                    <li>প্রতিটি লিঙ্ক যোগ করার পরে তা তালিকায় প্রদর্শিত হবে</li>
+                    <li>ভুল লিঙ্ক অপসারণ করতে ডানপাশের লাল বাটনে ক্লিক করুন</li>
+                    <li>সমস্ত লিঙ্ক যোগ করার পর "লিঙ্ক তৈরি করুন" বাটনে ক্লিক করুন</li>
+                    <li>উৎপন্ন লিঙ্কটি কপি করুন এবং শেয়ার করুন</li>
+                    <li>যে কেউ এই লিঙ্কটি ওপেন করলে অটোমেটিকভাবে ৪-৫টি ট্যাবে লিঙ্কগুলো ওপেন হবে</li>
+                </ul>
+            </div>
+            
+            <div id="statusMessage" class="status"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const linkInput = document.getElementById('linkInput');
+            const addLinkBtn = document.getElementById('addLinkBtn');
+            const linkList = document.getElementById('linkList');
+            const clearBtn = document.getElementById('clearBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const generatedLink = document.getElementById('generatedLink');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            let links = [];
+            
+            // Add link to the list
+            addLinkBtn.addEventListener('click', function() {
+                const link = linkInput.value.trim();
+                
+                if (link) {
+                    // Add http:// if missing
+                    const formattedLink = link.startsWith('http://') || link.startsWith('https://') 
+                        ? link 
+                        : 'https://' + link;
+                    
+                    links.push(formattedLink);
+                    updateLinksList();
+                    saveLinks();
+                    linkInput.value = '';
+                    linkInput.focus();
+                    showStatus('লিঙ্ক যোগ করা হয়েছে!', 'success');
+                } else {
+                    showStatus('দয়া করে একটি বৈধ লিঙ্ক লিখুন', 'error');
+                }
+            });
+            
+            // Add link on Enter key
+            linkInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addLinkBtn.click();
+                }
+            });
+            
+            // Clear all links
+            clearBtn.addEventListener('click', function() {
+                links = [];
+                updateLinksList();
+                saveLinks();
+                generatedLink.textContent = 'লিঙ্ক তৈরি করুন বাটনে ক্লিক করুন';
+                showStatus('সব লিঙ্ক মুছে ফেলা হয়েছে।', 'success');
+            });
+            
+            // Generate shareable link
+            generateBtn.addEventListener('click', function() {
+                if (links.length === 0) {
+                    showStatus('কোন লিঙ্ক যোগ করা হয়নি!', 'error');
+                    return;
+                }
+                
+                // Create a unique ID for this link set
+                const linkId = generateUniqueId();
+                
+                // Save links to localStorage with this ID
+                localStorage.setItem(`multiTabLinks_${linkId}`, JSON.stringify(links));
+                
+                // Create the shareable link
+                const baseUrl = window.location.href.split('?')[0];
+                const shareableLink = `${baseUrl}?id=${linkId}`;
+                
+                generatedLink.textContent = shareableLink;
+                showStatus('লিঙ্ক তৈরি করা হয়েছে! এটি শেয়ার করুন।', 'success');
+            });
+            
+            // Copy link to clipboard
+            copyBtn.addEventListener('click', function() {
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedLink.textContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Show feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> কপি সম্পন্ন!';
+                showStatus('লিঙ্ক কপি করা হয়েছে!', 'success');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+            
+            // Update the links list in the UI
+            function updateLinksList() {
+                linkList.innerHTML = '';
+                
+                if (links.length === 0) {
+                    linkList.innerHTML = `
+                        <div class="link-item">
+                            <div class="link-text">কোন লিঙ্ক যোগ করা হয়নি</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                links.forEach((link, index) => {
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'link-item';
+                    linkElement.innerHTML = `
+                        <div class="link-text">${link}</div>
+                        <button class="remove-btn" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    linkList.appendChild(linkElement);
+                });
+                
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        links.splice(index, 1);
+                        updateLinksList();
+                        saveLinks();
+                        showStatus('লিঙ্ক অপসারণ করা হয়েছে।', 'success');
+                    });
+                });
+            }
+            
+            // Show status message
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status ${type}`;
+                statusMessage.style.display = 'block';
+                
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Save links to localStorage
+            function saveLinks() {
+                localStorage.setItem('multiTabLinks', JSON.stringify(links));
+            }
+            
+            // Load links from localStorage
+            function loadLinks() {
+                const savedLinks = localStorage.getItem('multiTabLinks');
+                if (savedLinks) {
+                    links = JSON.parse(savedLinks);
+                    updateLinksList();
+                }
+            }
+            
+            // Generate unique ID
+            function generateUniqueId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            }
+            
+            // Check if we have a shareable link to process
+            function processShareableLink() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const linkId = urlParams.get('id');
+                
+                if (linkId) {
+                    const savedLinks = localStorage.getItem(`multiTabLinks_${linkId}`);
+                    
+                    if (savedLinks) {
+                        const linksToOpen = JSON.parse(savedLinks);
+                        openMultipleTabs(linksToOpen);
+                    }
+                }
+            }
+            
+            // Open multiple tabs
+            function openMultipleTabs(links) {
+                const openedTabs = [];
+                
+                // Open each link in a new tab
+                links.forEach(link => {
+                    try {
+                        const newTab = window.open(link, '_blank');
+                        if (newTab) {
+                            openedTabs.push(newTab);
+                        }
+                    } catch (e) {
+                        console.error(`Error opening ${link}:`, e);
+                    }
+                });
+                
+                // If no tabs were opened (popup blocker), redirect to first link
+                setTimeout(() => {
+                    if (openedTabs.length === 0 && links.length > 0) {
+                        window.location.href = links[0];
+                    }
+                }, 1000);
+            }
+            
+            // Initialize
+            loadLinks();
+            processShareableLink();
+        });
+    </script>
+</body>
+</html>
